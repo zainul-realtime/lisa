@@ -6,22 +6,26 @@ var path = require("path");
 var parse = require('csv-parse');
 var async = require('async');
 var files = './files/';
+var dotenv = require('dotenv');
+dotenv.load();
 
-var sequelize = new Sequelize('healthcare', 'zainul', 'Realtime1!', {
-    dialect: 'postgres',
-    port: 5432,
-    host: 'localhost',
+var sequelize = new Sequelize(
+  process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
+    dialect: process.env.DB_DIALECT,
+    port: process.env.PORT,
+    host: process.env.DB_HOST,
     define: {
       timestamps: false
     }
 });
 
 // 1 & 2
-// var auto = new SequelizeAuto('healthcare', 'zainul', 'Realtime1!', {
-//     dialect: 'postgres',
-//     port: 5432,
-//     host: 'localhost'
-// });
+var auto = new SequelizeAuto(
+  process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
+    dialect: process.env.DB_DIALECT,
+    port: process.env.PORT,
+    host: process.env.DB_HOST
+});
 
 var file = String("contacts.csv");
 var model = file.split('.')[0];
@@ -46,9 +50,9 @@ var model = file.split('.')[0];
 // });
 
 // 2
-// auto.run(function(err) {
-//     if (err) throw err;
-//
-//     // console.log(auto.tables); // table list
-//     // console.log(auto.foreignKeys); // foreign key list
-// });
+auto.run(function(err) {
+    if (err) throw err;
+
+    // console.log(auto.tables); // table list
+    console.log(auto.foreignKeys[model]); // foreign key list
+});

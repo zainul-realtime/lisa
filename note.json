@@ -1,0 +1,45 @@
+// sample model if not has foreign key
+{
+    id: {
+        source_table: 'supplier_types',
+        source_schema: 'public',
+        target_schema: null,
+        constraint_name: 'supplier_types_pkey',
+        source_column: 'id',
+        target_table: null,
+        target_column: null,
+        contype: 'p',
+        extra: 'nextval(\'supplier_types_id_seq\'::regclass)',
+        isPrimaryKey: true,
+        isSerialKey: true
+    }
+}
+
+// sample model has foreign key
+{
+    id: {
+        source_table: 'contacts',
+        source_schema: 'public',
+        target_schema: null,
+        constraint_name: 'contacts_pkey',
+        source_column: 'id',
+        target_table: null,
+        target_column: null,
+        contype: 'p',
+        extra: 'nextval(\'contacts_id_seq\'::regclass)',
+        isPrimaryKey: true,
+        isSerialKey: true
+    },
+    supplier_type_id: {
+        source_table: 'contacts',
+        source_schema: 'public',
+        target_schema: 'public',
+        constraint_name: 'fkqqsuvcyjf55s40oyrp0uxa4fk',
+        source_column: 'supplier_type_id',
+        target_table: 'supplier_types',
+        target_column: 'id',
+        contype: 'f',
+        extra: 'nextval(\'contacts_id_seq\'::regclass)',
+        isForeignKey: true
+    }
+}
