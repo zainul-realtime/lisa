@@ -8,6 +8,7 @@ var parse = require('csv-parse');
 var async = require('async');
 var files = './files/';
 var yaml = require('yamljs');
+var sequelizeLogger = require('sequelize-log-syntax-colors');
 var dotenv = require('dotenv');
 dotenv.load();
 
@@ -16,6 +17,7 @@ var sequelize = new Sequelize(
     dialect: process.env.DB_DIALECT,
     port: process.env.PORT,
     host: process.env.DB_HOST,
+    logging: false,
     define: {
       timestamps: false
     }
@@ -27,8 +29,9 @@ var auto = new SequelizeAuto(
     dialect: process.env.DB_DIALECT,
     port: process.env.PORT,
     host: process.env.DB_HOST,
+    logging: false,
     define: {
-      timestamps: false
+      timestamps: sequelizeLogger
     }
   });
 
@@ -37,7 +40,7 @@ var mappers = yaml.load(__dirname + '/mapper.yml');
 auto.run(function(err) {
   if (err) throw err;
 
-  var file = String("persons.csv");
+  var file = String("employees.csv");
   var model = file.split('.')[0];
   var keyModel = auto.foreignKeys[model];
 
@@ -52,15 +55,14 @@ auto.run(function(err) {
 
         var Model = sequelize.import(__dirname + "/models/" + model);
         validationType(model, modelWithForeignKey, (validModel) => {
-
-          Model.create(validModel)
-            .then((savedModel) => {
-              console.log(savedModel)
-            })
-            .catch((err) => {
-              console.log(err)
-            });
-
+          console.log(validModel)
+            // Model.create(validModel)
+            //   .then((savedModel) => {
+            //     console.log(savedModel)
+            //   })
+            //   .catch((err) => {
+            //     console.log(err, "error save latest")
+            //   });
         })
       });
     }
@@ -84,10 +86,11 @@ function validationType(model, recordModel, cb) {
 function belongsToCheck(keyModel, mappers, modelName, recordModel, cb) {
   var i = 0;
   for (var key in keyModel) {
-    i++;
+
     if (keyModel[key].target_table != null) {
 
       var searchKey;
+
       for (var keyMapper in mappers) {
 
         if (keyMapper === modelName) {
@@ -102,8 +105,16 @@ function belongsToCheck(keyModel, mappers, modelName, recordModel, cb) {
         }
       }
 
-      var foreignKeyModel = sequelize.import(__dirname + "/models/" +
-        keyModel[key].target_table);
+      var withRoot = false;
+      if (searchKey.hasOwnProperty("rootSearch")) {
+        var foreignKeyModel = sequelize.import(__dirname + "/models/" +
+          searchKey['rootSearch']);
+        searchKey = searchKey['column'];
+        withRoot = true;
+      } else {
+        var foreignKeyModel = sequelize.import(__dirname + "/models/" +
+          keyModel[key].target_table);
+      }
 
       var searchCriteria = {};
       searchCriteria[searchKey] = recordModel[keyModel[key].source_column];
@@ -116,19 +127,30 @@ function belongsToCheck(keyModel, mappers, modelName, recordModel, cb) {
           where: searchCriteria,
           defaults: {}
         }).spread(function(object, created) {
+          if (isNaN(Number(object.id))) {
+            recordModel[columnFk] = null;
+          } else {
+            recordModel[columnFk] = Number(object.id) || null;
+          }
 
-          recordModel[columnFk] = Number(object.id);
-
+          i++;
           if (Object.keys(keyModel).length === i) {
             cb(recordModel);
           }
 
-        }).error((err) => {
-          cb(recordModel)
-        })
+        }).catch((err) => {
+          i++;
+          if (Object.keys(keyModel).length === i) {
+            cb(recordModel);
+          }
+        });
+
+      }else {
+        i++;
       }
 
     } else {
+      i++;
       if (Object.keys(keyModel).length === i) {
         cb(recordModel);
       }

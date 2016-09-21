@@ -2,3 +2,9 @@ persons:
   address_id: address_line1
   next_of_kin_id: email
   user_id: email
+
+employees:
+  person_id: email
+  report_manager_id:
+    rootSearch: persons
+    column: first_name
