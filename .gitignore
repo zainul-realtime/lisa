@@ -12,3 +12,4 @@ test/bench/temp
 test/coverage/*
 models
 .env
+files
