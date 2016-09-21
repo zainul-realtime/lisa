@@ -40,7 +40,7 @@ var mappers = yaml.load(__dirname + '/mapper.yml');
 auto.run(function(err) {
   if (err) throw err;
 
-  var file = String("employees.csv");
+  var file = String("contacts.csv");
   var model = file.split('.')[0];
   var keyModel = auto.foreignKeys[model];
 
@@ -55,14 +55,14 @@ auto.run(function(err) {
 
         var Model = sequelize.import(__dirname + "/models/" + model);
         validationType(model, modelWithForeignKey, (validModel) => {
-          console.log(validModel)
-            // Model.create(validModel)
-            //   .then((savedModel) => {
-            //     console.log(savedModel)
-            //   })
-            //   .catch((err) => {
-            //     console.log(err, "error save latest")
-            //   });
+          // console.log(validModel)
+            Model.create(validModel)
+              .then((savedModel) => {
+                console.log("savedModel")
+              })
+              .catch((err) => {
+                console.log(err, "error save latest")
+              });
         })
       });
     }
@@ -77,7 +77,12 @@ function validationType(model, recordModel, cb) {
     var type = Model.tableAttributes[key].type.constructor.key;
 
     if (['INTEGER', 'BIGINT'].indexOf(type) !== -1) {
-      recordModel[key] = Number(recordModel[key]);
+      // console.log(recordModel[key])
+      if (recordModel[key] == '') {
+        recordModel[key] = null
+      }else {
+        recordModel[key] = Number(recordModel[key]);
+      }
     }
   }
   cb(recordModel);
@@ -105,12 +110,10 @@ function belongsToCheck(keyModel, mappers, modelName, recordModel, cb) {
         }
       }
 
-      var withRoot = false;
       if (searchKey.hasOwnProperty("rootSearch")) {
         var foreignKeyModel = sequelize.import(__dirname + "/models/" +
           searchKey['rootSearch']);
         searchKey = searchKey['column'];
-        withRoot = true;
       } else {
         var foreignKeyModel = sequelize.import(__dirname + "/models/" +
           keyModel[key].target_table);

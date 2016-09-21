@@ -1,3 +1,6 @@
+contacts:
+  supplier_type_id: name
+
 persons:
   address_id: address_line1
   next_of_kin_id: email
@@ -8,3 +11,9 @@ employees:
   report_manager_id:
     rootSearch: persons
     column: first_name
+
+employee_positions:
+  employee_id:
+    rootSearch: persons
+    column: first_name
+  position_id: name
