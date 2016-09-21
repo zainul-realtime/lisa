@@ -7,6 +7,7 @@ var path = require("path");
 var parse = require('csv-parse');
 var async = require('async');
 var files = './files/';
+var yaml = require('yamljs');
 var dotenv = require('dotenv');
 dotenv.load();
 
@@ -31,12 +32,15 @@ var auto = new SequelizeAuto(
     }
   });
 
+var mappers = yaml.load(__dirname + '/mapper.yml');
+
 auto.run(function(err) {
   if (err) throw err;
 
-  var file = String("users.csv");
+  var file = String("persons.csv");
   var model = file.split('.')[0];
   var keyModel = auto.foreignKeys[model];
+
   async.waterfall([
     async.apply(fs.readFile, path.join(__dirname, files, file)),
     parse,
@@ -44,7 +48,7 @@ auto.run(function(err) {
   ], (results, err) => {
     for (var i = 0; i < results.length; i++) {
       var record = results[i];
-      belongsToCheck(keyModel, 'name', record, (modelWithForeignKey) => {
+      belongsToCheck(keyModel, mappers, model, record, (modelWithForeignKey) => {
 
         var Model = sequelize.import(__dirname + "/models/" + model);
         validationType(model, modelWithForeignKey, (validModel) => {
@@ -54,8 +58,8 @@ auto.run(function(err) {
               console.log(savedModel)
             })
             .catch((err) => {
-               console.log(err)
-             });
+              console.log(err)
+            });
 
         })
       });
@@ -77,11 +81,27 @@ function validationType(model, recordModel, cb) {
   cb(recordModel);
 }
 
-function belongsToCheck(keyModel, searchKey, recordModel, cb) {
+function belongsToCheck(keyModel, mappers, modelName, recordModel, cb) {
   var i = 0;
   for (var key in keyModel) {
     i++;
     if (keyModel[key].target_table != null) {
+
+      var searchKey;
+      for (var keyMapper in mappers) {
+
+        if (keyMapper === modelName) {
+
+          var mapperModel = mappers[keyMapper];
+          for (var keyColumn in mapperModel) {
+
+            if (keyColumn === keyModel[key].source_column) {
+              searchKey = mapperModel[keyColumn];
+            }
+          }
+        }
+      }
+
       var foreignKeyModel = sequelize.import(__dirname + "/models/" +
         keyModel[key].target_table);
 
