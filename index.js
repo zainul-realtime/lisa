@@ -9,13 +9,39 @@ var async = require('async');
 var files = './files/';
 var yaml = require('yamljs');
 var sequelizeLogger = require('sequelize-log-syntax-colors');
+var exec = require('child_process').exec;
 var dotenv = require('dotenv');
 dotenv.load();
+var installedDep = __dirname + '/install.yml';
+var hasInstalledDep;
 
+try {
+  hasInstalledDep = yaml.load(installedDep);
+} catch (e) {}
+
+if (!hasInstalledDep) {
+  exec('npm install -g sequelize-auto').stdout.pipe(process.stdout);
+  exec('npm install -g pg pg-hstore').stdout.pipe(process.stdout);
+  exec('sequelize-auto -o "./models/' + process.env.NODE_ENV
+                            + '" -d ' + process.env.DB_NAME
+                            + ' -h ' + process.env.DB_HOST
+                            + ' -u ' + process.env.DB_USER
+                            + ' -p ' + process.env.DB_PORT
+                            + ' -x ' + process.env.DB_PASSWORD
+                            + ' -e ' + process.env.DB_DIALECT, function (error, stdout, stderr) {
+                              console.log(error, stdout, stderr)
+    })
+  try {
+    fs.writeFileSync(installedDep, "install: true", 'utf8');
+  } catch (e) {
+    console.log(e)
+  }
+}
+//
 var sequelize = new Sequelize(
   process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     dialect: process.env.DB_DIALECT,
-    port: process.env.PORT,
+    port: process.env.DB_PORT,
     host: process.env.DB_HOST,
     logging: false,
     define: {
@@ -23,11 +49,20 @@ var sequelize = new Sequelize(
     }
   });
 
+sequelize
+  .authenticate()
+  .then(function(err) {
+    console.log('Connection has been established successfully.');
+  })
+  .catch(function (err) {
+    console.log('Unable to connect to the database:', err);
+  });
+
 // 1 & 2
 var auto = new SequelizeAuto(
   process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     dialect: process.env.DB_DIALECT,
-    port: process.env.PORT,
+    port: process.env.DB_PORT,
     host: process.env.DB_HOST,
     logging: false,
     define: {
@@ -37,43 +72,45 @@ var auto = new SequelizeAuto(
 
 var mappers = yaml.load(__dirname + '/mapper.yml');
 
-auto.run(function(err) {
-  if (err) throw err;
+if (hasInstalledDep) {
+  auto.run(function(err) {
+    if (err) throw err;
 
-  var file = String("employee_positions.csv");
-  var model = file.split('.')[0];
-  var keyModel = auto.foreignKeys[model];
+    var file = String("employee_positions.csv");
+    var model = file.split('.')[0];
+    var keyModel = auto.foreignKeys[model];
 
-  async.waterfall([
-    async.apply(fs.readFile, path.join(__dirname, files, file)),
-    parse,
-    transform.readRecords,
-  ], (results, err) => {
-    for (var i = 0; i < results.length; i++) {
-      var record = results[i];
-      belongsToCheck(keyModel, mappers, model, record, (modelWithForeignKey) => {
+    async.waterfall([
+      async.apply(fs.readFile, path.join(__dirname, files, file)),
+      parse,
+      transform.readRecords,
+    ], (results, err) => {
+      for (var i = 0; i < results.length; i++) {
+        var record = results[i];
+        belongsToCheck(keyModel, mappers, model, record, (modelWithForeignKey) => {
 
-        var Model = sequelize.import(__dirname + "/models/" + model);
-        validationType(model, modelWithForeignKey, (validModel) => {
-          // console.log(validModel)
+          var Model = sequelize.import(__dirname + "/models/" + process.env.NODE_ENV + "/" + model);
+          validationType(model, modelWithForeignKey, (validModel) => {
+            // console.log(validModel)
             Model.create(validModel)
-              .then((savedModel) => {
-                console.log("savedModel")
-              })
-              .catch((err) => {
-                console.log(err.original.detail)
-                console.log(err.sql)
-              });
-        })
-      });
-    }
+            .then((savedModel) => {
+              console.log("savedModel")
+            })
+            .catch((err) => {
+              console.log(err.original.detail)
+              console.log(err.sql)
+            });
+          })
+        });
+      }
+    });
   });
-});
+}
 
 function validationType(model, recordModel, cb) {
   for (var key in recordModel) {
 
-    var Model = sequelize.import(__dirname + "/models/" + model);
+    var Model = sequelize.import(__dirname + "/models/" + process.env.NODE_ENV + "/" + model);
 
     var type = Model.tableAttributes[key].type.constructor.key;
 
@@ -112,11 +149,11 @@ function belongsToCheck(keyModel, mappers, modelName, recordModel, cb) {
       }
 
       if (searchKey.hasOwnProperty("rootSearch")) {
-        var foreignKeyModel = sequelize.import(__dirname + "/models/" +
+        var foreignKeyModel = sequelize.import(__dirname + "/models/" + process.env.NODE_ENV + "/" +
           searchKey['rootSearch']);
         searchKey = searchKey['column'];
       } else {
-        var foreignKeyModel = sequelize.import(__dirname + "/models/" +
+        var foreignKeyModel = sequelize.import(__dirname + "/models/" + process.env.NODE_ENV + "/" +
           keyModel[key].target_table);
       }
 
