@@ -1,10 +1,16 @@
 contacts:
   supplier_type_id: name
 
+users:
+  role_id: name
+
 persons:
   address_id: address_line1
   next_of_kin_id: email
   user_id: email
+
+positions:
+  parent_level_id: name
 
 employees:
   person_id: email

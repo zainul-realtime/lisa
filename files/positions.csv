@@ -2,3 +2,28 @@ level,name,parent_level_id
 1,Director,
 2,Managing Director,Director
 3,Chief Financial Officer,Managing Director
+3,Executive Care Manager,Managing Director
+3,Project Manager,Managing Director
+3,Human Resources Manager,Managing Director
+3,Information System Manager,Managing Director
+3,Training Manager,Managing Director
+3,HSE Manager,Managing Director
+4,Accounts Payable,Chief Financial Officer
+4,Purchasing Staff,Project Manager
+4,Competency Assessors,Training Manager
+4,Facilitors,Human Resources Manager
+4,ACFI Coordinator,Human Resources Manager
+4,Administration,Chief Financial Officer
+4,Payroll,Chief Financial Officer
+4,ACFI Coordinator,Human Resources Manager
+4,Maintenance Officer,HSE Manager
+4,Supervisor,Executive Care Manager
+4,Nursing Manager,Executive Care Manager
+4,IT Officer,Information System Manager
+4,ACFI Coordinator,Human Resources Manager
+5,Data Entry Staff,Accounts Payable
+5,Chaplain of Residents and Staff,Administration
+5,Maintenance Staff,Maintenance Officer
+5,Employee,Supervisor
+5,IT Staff,IT Officer
+5,Pain Management,Nursing Manager

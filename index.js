@@ -40,7 +40,7 @@ var mappers = yaml.load(__dirname + '/mapper.yml');
 auto.run(function(err) {
   if (err) throw err;
 
-  var file = String("contacts.csv");
+  var file = String("employee_positions.csv");
   var model = file.split('.')[0];
   var keyModel = auto.foreignKeys[model];
 
@@ -61,7 +61,8 @@ auto.run(function(err) {
                 console.log("savedModel")
               })
               .catch((err) => {
-                console.log(err, "error save latest")
+                console.log(err.original.detail)
+                console.log(err.sql)
               });
         })
       });
