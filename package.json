@@ -2,14 +2,36 @@
   "name": "lisa",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "dist",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "babel src -s -D -d dist --presets es2015,stage-0",
+    "start": "node dist",
+    "prestart": "npm run -s build",
+    "test": "eslint src"
+  },
+  "eslintConfig": {
+    "extends": "eslint:recommended",
+    "parserOptions": {
+      "ecmaVersion": 7,
+      "sourceType": "module"
+    },
+    "env": {
+      "node": true
+    },
+    "rules": {
+      "no-console": 0,
+      "no-unused-vars": 1
+    }
   },
   "author": "Zainul <zainulmasadi90@gmail.com> (zainul)",
   "license": "ISC",
   "devDependencies": {
-    "babel-cli": "^6.14.0"
+    "babel-cli": "^6.14.0",
+    "babel-core": "^6.14.0",
+    "babel-preset-es2015": "^6.14.0",
+    "babel-preset-es2017": "^6.14.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "eslint": "^3.5.0"
   },
   "dependencies": {
     "async": "^2.0.1",

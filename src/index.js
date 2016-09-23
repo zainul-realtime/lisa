@@ -1,6 +1,7 @@
 'use strict'
+import transform from './transformer';
+
 var SequelizeAuto = require('sequelize-auto')
-var transform = require('./generic_transform')
 var Sequelize = require('sequelize');
 var fs = require('fs');
 var path = require("path");
