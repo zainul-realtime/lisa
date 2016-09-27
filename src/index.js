@@ -1,18 +1,19 @@
 'use strict'
 import transform from './transformer';
+import SequelizeAuto from 'sequelize-auto';
+import Sequelize from 'sequelize';
+import fs from 'fs';
+import path from 'path';
+import parse from 'csv-parse';
+import async from 'async';
+import yaml from 'yamljs';
+import sequelizeLogger from 'sequelize-log-syntax-colors';
+import dotenv from 'dotenv';
 
-var SequelizeAuto = require('sequelize-auto')
-var Sequelize = require('sequelize');
-var fs = require('fs');
-var path = require("path");
-var parse = require('csv-parse');
-var async = require('async');
-var files = './files/';
-var yaml = require('yamljs');
-var sequelizeLogger = require('sequelize-log-syntax-colors');
 var exec = require('child_process').exec;
-var dotenv = require('dotenv');
 dotenv.load();
+
+var files = './files/';
 var installedDep = __dirname + '/install.yml';
 var hasInstalledDep;
 

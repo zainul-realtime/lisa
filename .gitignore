@@ -4,6 +4,7 @@
 .vagrant
 node_modules
 npm-debug.log
+npm-debug.*
 tmp
 lib
 
