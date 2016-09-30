@@ -1,25 +1,32 @@
-class Transformer {
+'use strict';
+
+export default class Transformer {
+
+  constructor() {}
+
   prop = [];
 
-  get toModel(options, callback) {
+  toModel(options, callback) {
     let record = {};
     let attribute;
+
     if (options.i === 0) {
-      prop = [];
+      this.prop = [];
       options.output.map((value) => {
-        prop.push(value);
+        this.prop.push(value);
       })
     } else {
       options.output.map((value, i) => {
-        record[prop[i]] = value;
+        record[this.prop[i]] = value;
       })
     }
     return callback(record)
   }
 
-  get readRecords(records, callback) => {
+  readRecords(records, callback) {
     let z = 0;
     let models = [];
+
     records.forEach((output, i, array) => {
       this.toModel({
         output,
@@ -35,6 +42,5 @@ class Transformer {
       })
     })
   }
-}
 
-export default Transformer;
+}

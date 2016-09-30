@@ -17,5 +17,5 @@ models
 .env.staging
 .env.development
 files
-install.yml
 dist
+install.yml

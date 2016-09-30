@@ -76,7 +76,7 @@ if (hasInstalledDep) {
   auto.run(function(err) {
     if (err) throw err;
 
-    var file = String("positions.csv");
+    var file = String("employee_positions.csv");
     var model = file.split('.')[0];
     var keyModel = auto.foreignKeys[model];
 
@@ -91,7 +91,7 @@ if (hasInstalledDep) {
 
           var Model = sequelize.import(__dirname + "/models/" + process.env.NODE_ENV + "/" + model);
           validationType(model, modelWithForeignKey, (validModel) => {
-            // console.log(validModel)
+            console.log(validModel)
             Model.create(validModel)
             .then((savedModel) => {
               console.log("savedModel")
