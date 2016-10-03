@@ -15,9 +15,9 @@ class Install {
     } catch (e) {}
 
     if (!this.hasInstalledDep) {
-      exec('npm install -g sequelize-auto').stdout.pipe(process.stdout);
-      exec('npm install -g pg pg-hstore').stdout.pipe(process.stdout);
-      exec('sequelize-auto -o "./src/models/' + process.env.NODE_ENV +
+      this.exec('npm install -g sequelize-auto').stdout.pipe(process.stdout);
+      this.exec('npm install -g pg pg-hstore').stdout.pipe(process.stdout);
+      this.exec('sequelize-auto -o "./src/models/' + process.env.NODE_ENV +
         '" -d ' + process.env.DB_NAME +
         ' -h ' + process.env.DB_HOST +
         ' -u ' + process.env.DB_USER +

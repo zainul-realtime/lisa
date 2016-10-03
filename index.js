@@ -80,6 +80,8 @@ if (hasInstalledDep) {
     var model = file.split('.')[0];
     var keyModel = auto.foreignKeys[model];
 
+    console.log(path.join(__dirname, files, file))
+
     async.waterfall([
       async.apply(fs.readFile, path.join(__dirname, files, file)),
       parse,

@@ -1,11 +1,8 @@
 'use strict'
-<<<<<<< HEAD
 import Transformer from './transformer';
 import Validator from './Validator';
 import Install from './install';
 import DB from './db';
-=======
-import transform from './transformer';
 import SequelizeAuto from 'sequelize-auto';
 import Sequelize from 'sequelize';
 import fs from 'fs';
@@ -15,11 +12,10 @@ import async from 'async';
 import yaml from 'yamljs';
 import sequelizeLogger from 'sequelize-log-syntax-colors';
 import dotenv from 'dotenv';
->>>>>>> f11af745c1adb5914fe766b5d58f268a45c283ca
 
 var exec = require('child_process').exec;
 dotenv.load();
-
+var que = require('q');
 var files = './files/';
 var installedDep = __dirname + '/install.yml';
 var hasInstalledDep;
@@ -55,7 +51,8 @@ let validation = new Validator({
 
 var mappers = yaml.load(__dirname + '/mapper.yml');
 
-if (install.hasInstalledDep) {
+if (install.hasInstalledDep.install) {
+
   auto.run(function(err) {
     if (err) throw err;
 
@@ -74,21 +71,23 @@ if (install.hasInstalledDep) {
           var record = results[i];
 
           validation.belongsToCheck(keyModel, mappers, model, record, (modelWithForeignKey) => {
-
             var Model = sequelize.import(__dirname + "/models/" + process.env.NODE_ENV + "/" + model);
 
             let validModel = validation.validationType(model, modelWithForeignKey);
 
+            console.log(validModel);
+
             Model.create(validModel)
               .then((savedModel) => {
-                console.log(chalk.green(savedModel.toJSON()))
+                console.log(chalk.green(savedModel))
               })
               .catch((err) => {
-                console.log(chalk.red.bgYellow(err.original.detail))
+                console.log(chalk.red.bgYellow(err.original))
                 console.log(chalk.red(err.sql))
               });
 
           });
+
         }
 
       })

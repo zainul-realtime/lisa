@@ -4,17 +4,17 @@ class Validator {
 
   constructor(options) {
     this.sequelize = options.sequelize;
+    this.newRecordModel = {};
   }
 
   validationType(model, recordModel) {
+
     for (let key in recordModel) {
       let Model = this.sequelize.import(__dirname + "/models/" + process.env.NODE_ENV +
         "/" + model);
 
       let type = Model.tableAttributes[key].type.constructor.key;
-
       if (['INTEGER', 'BIGINT'].indexOf(type) !== -1) {
-
         if (recordModel[key] == '') {
           recordModel[key] = null
         } else {
@@ -27,9 +27,13 @@ class Validator {
   }
 
   belongsToCheck(keyModel, mappers, modelName, recordModel, cb) {
-    var i = 0;
+    // record model always get new
+    var i =0;
+
+    this.newRecordModel = recordModel;
 
     for (var key in keyModel) {
+
       if (keyModel[key].target_table != null) {
 
         var searchKey = this.builderSearchKey(keyModel, mappers, modelName, key);
@@ -42,33 +46,43 @@ class Validator {
 
         if (recordModel[keyModel[key].source_column] && searchCriteria[searchKey]) {
 
-          let columnFk = keyModel[key].source_column;
+          var columnFk = keyModel[key].source_column;
 
           let createdModel = this.foreignKeySearch(foreignKeyModel, searchCriteria);
 
           createdModel.then((res)=> {
+
             let object = res.object.toJSON();
 
             if (isNaN(Number(object.id))) {
-              recordModel[columnFk] = null;
+              this.newRecordModel[columnFk] = null;
             } else {
-              recordModel[columnFk] = Number(object.id) || null;
+              this.newRecordModel[columnFk] = Number(object.id);
             }
 
             i++;
-
-            this.finishCallback(i, keyModel) && cb(recordModel);
+            this.finishCallback(i, keyModel) && this.buildRecord(cb);
           }).catch((err) => {
-            i++;
 
-            this.finishCallback(i, keyModel) && cb(recordModel);
+            i++;
+            this.finishCallback(i, keyModel) && this.buildRecord(cb);
           })
+        }else {
+
+          i++;
+          this.finishCallback(i, keyModel) && this.buildRecord(cb);
         }
       } else {
+
         i++;
-        this.finishCallback(i, keyModel) && cb(recordModel);
+        this.finishCallback(i, keyModel) && this.buildRecord(cb);
       }
     }
+  }
+
+  buildRecord(cb) {
+    var data = this.newRecordModel;
+    cb(data);
   }
 
   finishCallback(i, keyModel) {
@@ -79,7 +93,7 @@ class Validator {
     return await foreignKeyModel.findOrCreate({
         where: searchCriteria,
         defaults: {}
-      }).spread((object, created) => {
+      }).spread((object, created) => {;
         return {object, created};
       })
   }
