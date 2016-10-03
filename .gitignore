@@ -4,9 +4,9 @@
 .vagrant
 node_modules
 npm-debug.log
+npm-debug.*
 tmp
 lib
-
 .nyc_output
 test/bench/temp
 test/coverage/*
