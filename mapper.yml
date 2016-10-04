@@ -20,6 +20,6 @@ employees:
 
 employee_positions:
   employee_id:
-    rootSearch: persons
-    column: first_name
+    rootSearch: employees
+    column: email
   position_id: name

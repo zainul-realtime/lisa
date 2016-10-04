@@ -82,8 +82,17 @@ if (install.hasInstalledDep.install) {
                     console.log(chalk.green(savedModel))
                   })
                   .catch((err) => {
+                    console.log("");
+                    console.log(chalk.red.bgWhite('-----------------------------'))
+                    console.log("");
+                    console.log(chalk.red.bgGreen(err.sql))
                     console.log(chalk.red.bgYellow(err.original))
-                    console.log(chalk.red(err.sql))
+                    console.log(chalk.red.bgGreen(err.original.detail))
+                    console.log("");
+                    console.log(chalk.red.bgWhite('+++++++++++++++++++++++++++++'))
+                    console.log("");
+                    console.log("");
+                    console.log("");
                   });
 
           }).catch((err) => {
