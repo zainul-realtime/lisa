@@ -15,7 +15,6 @@ import dotenv from 'dotenv';
 
 var exec = require('child_process').exec;
 dotenv.load();
-var que = require('q');
 var files = './files/';
 var installedDep = __dirname + '/install.yml';
 var hasInstalledDep;
