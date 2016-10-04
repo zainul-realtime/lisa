@@ -56,7 +56,7 @@ if (install.hasInstalledDep.install) {
   auto.run(function(err) {
     if (err) throw err;
 
-    var file = String("employees.csv");
+    var file = String("employee_positions.csv");
     var model = file.split('.')[0];
     var keyModel = auto.foreignKeys[model];
 
@@ -70,23 +70,26 @@ if (install.hasInstalledDep.install) {
 
           var record = results[i];
 
-          validation.belongsToCheck(keyModel, mappers, model, record, (modelWithForeignKey) => {
-            var Model = sequelize.import(__dirname + "/models/" + process.env.NODE_ENV + "/" + model);
+          var recordHasValidRelation = validation.belongsToCheck(keyModel, mappers, model, record)
 
-            let validModel = validation.validationType(model, modelWithForeignKey);
+          recordHasValidRelation.then((modelWithForeignKey) => {
 
-            console.log(validModel);
+              var Model = sequelize.import(__dirname + "/models/" + process.env.NODE_ENV + "/" + model);
 
-            Model.create(validModel)
-              .then((savedModel) => {
-                console.log(chalk.green(savedModel))
-              })
-              .catch((err) => {
-                console.log(chalk.red.bgYellow(err.original))
-                console.log(chalk.red(err.sql))
-              });
+              let validModel = validation.validationType(model, modelWithForeignKey);
 
-          });
+                Model.create(validModel)
+                  .then((savedModel) => {
+                    console.log(chalk.green(savedModel))
+                  })
+                  .catch((err) => {
+                    console.log(chalk.red.bgYellow(err.original))
+                    console.log(chalk.red(err.sql))
+                  });
+
+          }).catch((err) => {
+            console.log(err)
+          })
 
         }
 
